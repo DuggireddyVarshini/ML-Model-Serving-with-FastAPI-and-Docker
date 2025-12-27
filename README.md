@@ -1,78 +1,206 @@
-ML MODEL SERVING WITH FASTAPI AND DOCKER
+# 🤖 ML Model Serving with FastAPI and Docker
 
-PROJECT OVERVIEW :
-This project demonstrates end-to-end deployment of a machine learning model using FastAPI and Docker. It allows users to:
-- Load a pre-trained scikit-learn model(pickled `.pkl` file).  
-- Serve prediction endpoints via a REST API.  
-- Containerize the API using Docker.  
-- Test predictions with a Python client script or via Swagger UI.
-  
-KEY FEATURES :
-- Pre-trained classification model served as an API.  
-- JSON-based input for predictions.  
-- Dockerized application for easy deployment.  
-- Health-check endpoint included.  
-- Example client script (`client.py`) provided for testing.
+> Production-ready machine learning model deployment with comprehensive error handling, logging, and health monitoring.
 
-PROJECT STRUCTURE :
-   ML-Model-Serving-with-FastAPI-and-Docker/
-      ├── Dockerfile
-      ├── requirements.txt
-      ├── model.pkl
-      ├── main.py
-      ├── client.py
-      └── README.md
+[![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104-green.svg)](https://fastapi.tiangolo.com/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-- (Dockerfile)→ Instructions to build Docker image.  
-- (requirements.txt)→ Python dependencies.  
-- (model.pkl) → Pre-trained scikit-learn model.  
-- (main.py) → FastAPI application.  
-- (client.py) → Sample Python client to test the API.
-  
-PREREQUISITES :
-- Docker installed  
-  [Get Docker](https://www.docker.com/get-started)  
-- Python 3.x installed (for client script)  
-  [Get Python](https://www.python.org/downloads/)
-  
-Step 1: Clone the Repository
-Open terminal or command prompt and run:
-"git clone https://github.com/DuggireddyVarshini/ML-Model-Serving-with-FastAPI-and-Docker.git
-cd ML-Model-Serving-with-FastAPI-and-Docker".
+**Live Demo:** http://98.88.251.211:8000/docs
 
-Step 2: Build the Docker Image
-"docker build -t ml-fastapi-app" .
-
-Step 3: Run the Docker Container
-"docker run -p 8000:8000 ml-fastapi-app"
-If successful, you’ll see:
-"Uvicorn running on http://0.0.0.0:8000"
-
-Step 4: Access API Documentation (Swagger UI)
-Open your browser and go to:
-http://localhost:8000/docs
-Here you can:
--View all endpoints
--Send test requests
--Validate request and response formats
-  
-Step 5: Make Predictions Using Swagger
-i)Click the /predict endpoint.
-ii)Click “Try it out”.
-iii)Enter JSON input (sample)
-iv)Click Execute.
-  Example response:
-       {
-          "prediction": 1,
-          "label": "Malignant"
-       }
-       
-Step 6: Test with Python Client
-Ensure Python is installed.
-Run the client script:
- "python client.py"
-Output example:
-     Status Code: 200
-     {"prediction":1,"label":"Malignant"}
+---
 
 
+
+## 🎯 Overview
+
+This project demonstrates a **production-ready** machine learning model deployment using FastAPI and Docker. It serves a pre-trained scikit-learn classification model through a REST API with enterprise-grade features including:
+
+- Comprehensive error handling
+- Structured logging with timestamps
+- Docker health checks for container orchestration
+- Interactive API documentation (Swagger UI)
+- Graceful failure handling
+- Auto-restart on failures
+
+The system loads a pre-trained scikit-learn classification model and scaler from pickle files, exposes REST endpoints for predictions and health checks, and runs in a Docker container with proper health monitoring.
+
+---
+
+## ✨ Features
+
+### 🚀 Core Features
+
+- **Pre-trained Model Serving**: Loads and serves scikit-learn classification models
+- **RESTful API**: FastAPI-based REST endpoints for predictions
+- **Input Validation**: Automatic validation using Pydantic models
+- **Interactive Documentation**: Auto-generated Swagger UI at `/docs`
+- **Health Monitoring**: Built-in health check endpoint for orchestration tools
+
+### 🛡️ Production-Ready Features
+
+- **Error Handling**: Comprehensive try-catch blocks with descriptive error messages
+- **Structured Logging**: Timestamped logs for debugging and monitoring
+- **Docker Health Checks**: Automatic container health monitoring
+- **Auto-Restart**: Container automatically restarts on failures
+- **Graceful Degradation**: Fails fast with clear error messages if models are missing
+
+### 📊 Monitoring & Observability
+
+- **Request Logging**: Every prediction request is logged with metadata
+- **Error Tracking**: All errors logged at ERROR level with full stack traces
+- **Model Metadata**: Logs model type and loading status on startup
+- **Container Health**: Docker HEALTHCHECK runs every 30 seconds
+
+---
+
+## 🏗️ Architecture
+
+The application follows a clean three-layer architecture:
+
+```
+┌─────────────────────────────────────────┐
+│         Client Applications             │
+│    (Browser, cURL, Python, etc.)        │
+└──────────────┬──────────────────────────┘
+               │ HTTP/JSON
+               ▼
+┌─────────────────────────────────────────┐
+│         FastAPI Application             │
+│  ┌─────────────────────────────────┐   │
+│  │  /health endpoint               │   │
+│  │  /predict endpoint              │   │
+│  │  /docs (Swagger UI)             │   │
+│  └─────────────────────────────────┘   │
+└──────────────┬──────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────┐
+│      Model Service Layer                │
+│  ┌─────────────────────────────────┐   │
+│  │  Model Loader                   │   │
+│  │  Prediction Handler             │   │
+│  │  Error Handler                  │   │
+│  │  Logger                         │   │
+│  └─────────────────────────────────┘   │
+└──────────────┬──────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────┐
+│      Pickle Files (Disk)                │
+│  - model.pkl (Trained Model)            │
+│  - scaler.pkl (Data Scaler)             │
+└─────────────────────────────────────────┘
+```
+
+### Layer Responsibilities
+
+1. **API Layer (FastAPI)**
+   - HTTP request/response handling
+   - Input validation using Pydantic
+   - Response formatting
+   - Auto-generated documentation
+
+2. **Service Layer**
+   - Model loading with error handling
+   - Prediction logic
+   - Data transformation (scaling)
+   - Logging and monitoring
+
+3. **Infrastructure Layer**
+   - Docker containerization
+   - Health check monitoring
+   - Auto-restart on failures
+   - Log aggregation
+
+---
+
+
+
+
+### Access the API
+
+- **Health Check:** http://localhost:8000/health
+- **Interactive Docs:** http://localhost:8000/docs
+- **API Endpoint:** http://localhost:8000/predict
+---
+
+# 💻 Local Deployment Guide
+
+Run the ML Model API on your local machine for development and testing.
+
+---
+
+## 📋 Prerequisites
+
+Before you start, make sure you have:
+
+- **Python 3.11+** installed ([Download Python](https://www.python.org/downloads/))
+- **Docker Desktop** (optional, for containerized deployment) ([Download Docker](https://www.docker.com/products/docker-desktop/))
+- **Git** (to clone the repository) ([Download Git](https://git-scm.com/downloads))
+
+---
+
+## 🚀 Local Deployment
+
+### Step 1: Clone the Repository
+
+```bash
+# Clone from GitHub
+git clone https://github.com/DuggireddyVarshini/ML-Model-Serving-with-FastAPI-and-Docker.git
+cd ML-Model-Serving-with-FastAPI-and-Docker
+```
+
+Or if you already have the files locally:
+```bash
+cd ML-Model-Serving-with-FastAPI-and-Docker-main
+```
+
+### Step 2: Create Virtual Environment (Recommended)
+
+
+**Windows (Command Prompt):**
+```cmd
+# Create virtual environment
+python -m venv venv
+# Activate virtual environment
+venv\Scripts\activate.bat
+```
+
+
+### Step 3: Install Dependencies
+
+```bash
+# Install required packages
+pip install -r requirements.txt
+```
+
+**Expected output:**
+```
+Successfully installed fastapi uvicorn scikit-learn pandas requests
+```
+
+### Step 4: Run the API
+
+```bash
+# Start the FastAPI server
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+**Expected output:**
+```
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process
+INFO:     Started server process
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+```
+
+### Step 5: Access Your API
+
+Open your browser and visit:
+
+- **Health Check:** http://localhost:8000/health
+- **Interactive Docs:** http://localhost:8000/docs
+- **API Endpoint:** http://localhost:8000/predict
